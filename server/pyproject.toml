@@ -8,6 +8,7 @@ dependencies = [
     "django>=6.0.5",
     "django-allauth>=65.17.0",
     "django-ninja>=1.6.2",
+    "django-unfold>=0.94.0",
     "psycopg2-binary>=2.9.12",
     "python-dotenv>=1.2.2",
     "uvicorn>=0.48.0",
