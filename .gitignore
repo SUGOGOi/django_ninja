@@ -1,5 +1,8 @@
+temp.txt
+
+
 # Python-generated files
-server/__pycache__/
+server/**/__pycache__/
 server/*.py[oc]
 server/build/
 server/dist/
@@ -9,6 +12,33 @@ server/*.egg-info
 # Virtual environments
 server/.venv
 
+# Django
+server/*.sqlite3
+server/*.log
+server/media/
+server/staticfiles/
 
+# Migrations (keep __init__.py, ignore actual migration files)
+# server/**/migrations/*.py
+!server/**/migrations/__init__.py
 
-temp.txt
+# Environment variables
+server/.env
+server/.env.*.local
+
+# uv
+server/.python-version
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Client (add when you start frontend)
+# client/node_modules/
+# client/.next/
+# client/dist/
