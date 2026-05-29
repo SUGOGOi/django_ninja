@@ -31,7 +31,7 @@ def create_todo(request: HttpRequest, payload: TodoIn):
     return 201, todo
 
 
-@router.patch("/{todo_id}", response={200: TodoOut, 401: dict, 404: dict})
+@router.get("/{todo_id}", response={200: TodoOut, 401: dict, 404: dict})
 def get_todo(request: HttpRequest, todo_id: int):
     if not request.user.is_authenticated:
         return 401, {"message":"Not authenticated"}
