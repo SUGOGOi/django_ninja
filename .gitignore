@@ -39,6 +39,6 @@ Thumbs.db
 *.swp
 
 # Client (add when you start frontend)
-# client/node_modules/
-# client/.next/
-# client/dist/
+client/node_modules/
+client/.next/
+client/dist/
