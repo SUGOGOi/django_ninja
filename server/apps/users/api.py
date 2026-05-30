@@ -1,28 +1,51 @@
 from ninja import Router
-from django.contrib.auth import authenticate, login, logout
-from django.http import HttpRequest
-from .schemas import RegisterIn, LoginIn, UserOut
+from django.contrib.auth import authenticate, logout
+from django.http import HttpRequest, HttpResponse
+from .schemas import RegisterIn, LoginIn, UserOut,TokenOut
 from .models import User
+from .utils import create_access_token
+import json
+from .auth import CookieAuth
 
 router = Router(tags=["Auth"])
 
 
-@router.post("/register", response={201: UserOut, 400:dict})
+@router.post("/register")
 def register(request: HttpRequest, payload: RegisterIn):
     #check if email already exists
     if User.objects.filter(email = payload.email).exists():
-        return 400, {"message":"Email already registered"}
+        return HttpResponse(
+            json.dumps({"message": "Email already registered"}),
+            content_type="application/json",
+            status=400
+        )
     
     user = User.objects.create_user(
         email=payload.email,
         username=payload.username,
         password=payload.password,
     )
-    return 201, user
+    token = create_access_token(user)
+
+
+    response = HttpResponse(
+        json.dumps({"id":user.pk, "email":user.email, "username":user.username}),
+        content_type="application/json",
+        status=201
+    )
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,       # JS cannot access this
+        secure=False,        # True in production (HTTPS only)
+        samesite="Lax",      # CSRF protection
+        max_age=7 * 24 * 60 * 60,  # 7 days in seconds
+    )
+    return response
 
 
 
-@router.post("/login", response={200: UserOut, 401:dict})
+@router.post("/login")
 def use_login(request: HttpRequest, payload: LoginIn):
     user = authenticate(
         request,
@@ -30,18 +53,38 @@ def use_login(request: HttpRequest, payload: LoginIn):
         password=payload.password
     )
     if user is None:
-        return 401, {"message":"Invalid email or password"}
+        return HttpResponse(
+            json.dumps({"message": "Invalid email or password"}),
+            content_type="application/json",
+            status=401
+        )
     
-    login(request, user)
-    return 200, user
+    token = create_access_token(user)
+    response = HttpResponse(
+        json.dumps({"id": user.pk, "email": user.email, "username": user.username}),
+        content_type="application/json",
+        status=200
+    )
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=False,        # set True in production
+        samesite="Lax",
+        max_age=7 * 24 * 60 * 60,
+    )
+    return response
 
-@router.post("/logout", response={200: dict})
+@router.post("/logout")
 def user_logout(request: HttpRequest):
-    logout(request)
-    return 200, {"message":"Logged out successfully"}
+    response = HttpResponse(
+        json.dumps({"message": "Logged out successfully"}),
+        content_type="application/json",
+        status=200
+    )
+    response.delete_cookie("access_token")
+    return response
 
-@router.get("/me", response={200: UserOut, 401: dict})
+@router.get("/me",auth=CookieAuth(), response={200: UserOut, 401: dict})
 def me(request: HttpRequest):
-    if not request.user.is_authenticated:
-        return 401, {"error": "Not authenticated"}
-    return 200, request.user
+    return 200, getattr(request, "auth")

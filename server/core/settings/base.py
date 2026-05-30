@@ -17,6 +17,10 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
 
 
+    "corsheaders.middleware.CorsMiddleware",  # ← first!
+    "django.middleware.security.SecurityMiddleware",
+
+
     # Unfold - must be before django.contrib.admin
     # "unfold",
     # "unfold.contrib.filters",

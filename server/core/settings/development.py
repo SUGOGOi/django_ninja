@@ -13,3 +13,12 @@ DATABASES = {
 
 # Print emails to console instead of sending them
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+# CORS — allow frontend dev server
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",   # React default
+    "http://localhost:5173",   # Vite default
+]
+
+CORS_ALLOW_CREDENTIALS = True  # ← required for cookies to work cross-origin

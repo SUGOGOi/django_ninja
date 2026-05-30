@@ -13,7 +13,12 @@ class LoginIn(Schema):
     password: str
 
 class UserOut(Schema):
-    id: int
+    pk: int
     email: str
     username: str
     
+
+
+class TokenOut(Schema):
+    token: str
+    user: UserOut
